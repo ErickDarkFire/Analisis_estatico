@@ -11,10 +11,22 @@ repos:
     hooks:
     -   id: black
 
-- repo: local
-  hooks:
-    - id: checkstyle
-      name: Checkstyle
-      entry: java -jar checkstyle-10.12.4-all.jar -c checkstyle.xml
-      language: system
-      files: \.java$
+-   repo: local
+    hooks:
+      - id: checkstyle
+        name: Checkstyle (Java)
+        language: system
+        types: [java]
+        entry: >
+          bash -c '
+          CHECKSTYLE_VERSION=10.12.4
+          JAR=.checkstyle/checkstyle-${CHECKSTYLE_VERSION}-all.jar
+
+          if [ ! -f "$JAR" ]; then
+            mkdir -p .checkstyle
+            curl -sSL -o "$JAR" \
+              https://github.com/checkstyle/checkstyle/releases/download/checkstyle-${CHECKSTYLE_VERSION}/checkstyle-${CHECKSTYLE_VERSION}-all.jar
+          fi
+
+          java -jar "$JAR" -c checkstyle.xml "$@"
+          ' --
